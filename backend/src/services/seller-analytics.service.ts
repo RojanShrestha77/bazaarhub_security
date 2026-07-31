@@ -6,7 +6,6 @@ import { PayoutModel } from "../models/payout.model";
 type IdLike = Types.ObjectId | string;
 
 // Platform commission taken from released (settled) earnings. Kept here as the
-// single source of truth for both the seller summary and admin payouts.
 export const PLATFORM_COMMISSION_RATE = 0.05; // 5%
 
 // Statuses where funds are committed by the buyer but not yet settled.
