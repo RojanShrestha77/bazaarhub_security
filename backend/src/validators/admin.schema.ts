@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Mirrors the enums on the User model exactly — zod is the outer gate, the
+// Mirrors the enums on the User  exactly — zod is the outer gate, the
 // schema enum is the inner one; neither alone is sufficient.
 export const roleChangeSchema = z.object({ role: z.enum(["buyer", "seller", "admin"]) }).strict();
 
