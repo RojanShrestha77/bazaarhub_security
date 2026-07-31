@@ -61,11 +61,6 @@ export function requireRole(...roles: UserRole[]): AuthzGate {
     next();
   });
 }
-
-// Ownership checks resolve the resource server-side and compare against the
-// session user — never trust an ID from body/params as proof of ownership.
-// Mismatch and "doesn't exist" both come back 404, never 403, so this can't
-// enumerate which resource ids are real.
 export function requireOwnership(resolveOwnerId: (req: Request) => Promise<unknown> | unknown): AuthzGate {
   return gate("requireOwnership", async (req, res, next) => {
     if (!req.session || !req.user) {
