@@ -11,9 +11,6 @@ export class ListingNotFoundError extends Error {
   }
 }
 
-// Idempotent add. The unique {userId, listingId} index is the arbiter: a repeat
-// add (or a concurrent double-submit) collapses to the existing row instead of
-// erroring. Returns true if a new row was created, false if it already existed.
 export async function addToWishlist(userId: IdLike, listingId: IdLike): Promise<boolean> {
   const listing = await ListingModel.findById(listingId).select("_id");
   if (!listing) throw new ListingNotFoundError();
