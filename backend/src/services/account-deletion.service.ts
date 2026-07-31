@@ -8,10 +8,7 @@ import { revokeAllSessionsForUser } from "./session.service";
 import { invalidateAllResetTokensForUser } from "./password-reset.service";
 import { invalidateVerificationTokensForUser } from "./email-verification.service";
 
-// Orders in these states have no outstanding escrow obligation — funds are
-// settled (released/refunded) or the order never progressed (cancelled). Any
-// other state means money or delivery is still in flight and the account
-// cannot be closed until it resolves.
+
 const TERMINAL_ORDER_STATUSES = ["released", "refunded", "cancelled"];
 
 export class ActiveOrdersExistError extends Error {
