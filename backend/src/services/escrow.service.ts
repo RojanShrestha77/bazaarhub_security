@@ -298,7 +298,6 @@ export async function checkout(
 }
 
 // Verify a Khalti payment by pidx and, if completed, move the order to
-// payment_held. Returns whether it's now paid.
 export async function confirmKhaltiPayment(pidx: string, buyerId: IdLike): Promise<{ order: IOrder; paid: boolean; status: string }> {
   const { status, purchaseOrderId } = await lookupKhaltiPayment(pidx);
   const order = await OrderModel.findOne({ _id: purchaseOrderId, khaltiPidx: pidx });
