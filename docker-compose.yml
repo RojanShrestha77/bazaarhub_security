@@ -1,0 +1,102 @@
+name: bazaarhub
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    # Bind to loopback only — accessible from your machine (e.g. Compass) but
+    # not from the network. Remove the ports block entirely for production.
+    # Loopback binding is a convenience, not a control: auth is required below
+    # regardless of network position.
+    ports:
+      - "127.0.0.1:27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - bazaar-net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mongosh --quiet -u \"$$MONGO_INITDB_ROOT_USERNAME\" -p \"$$MONGO_INITDB_ROOT_PASSWORD\" --authenticationDatabase admin --eval \"db.adminCommand('ping')\"",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    restart: unless-stopped
+    # 1025 (SMTP) is intentionally NOT published to the host — only the
+    # backend needs it, over the compose network by service name. 8025 (web
+    # UI, for reading caught mail in a browser) is loopback-only, dev
+    # convenience, never meant to leave the machine.
+    ports:
+      - "127.0.0.1:8025:8025"
+    networks:
+      - bazaar-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runner
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Override the DB URI so it uses the compose service name, not localhost,
+      # and authenticates against the admin database.
+      MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongo:27017/bazaarhub?authSource=admin
+      # Dev mail catcher — MailHog accepts any credentials and never delivers
+      # externally. Swap for a real SMTP provider's values in prod via .env.
+      SMTP_HOST: mailhog
+      SMTP_PORT: 1025
+    ports:
+      - "127.0.0.1:5000:5000"
+    # Without a cap, "how much memory can concurrent argon2id hashing use"
+    # has no real answer to test against — see tests/bench/argon2-concurrency.js
+    # and src/config/argon2.js for the measurement this limit is sized around.
+    mem_limit: 512m
+    volumes:
+      # Mount uploads directory so files persist across container restarts
+      - uploads-data:/app/uploads
+    networks:
+      - bazaar-net
+    depends_on:
+      mongo:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: runner
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - bazaar-net
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  mongo-data:
+  uploads-data:
+
+networks:
+  bazaar-net:
+    driver: bridge

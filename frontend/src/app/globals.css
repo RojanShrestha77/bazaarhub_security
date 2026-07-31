@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+/* Explicit source scan — Tailwind v4's automatic detection was not picking
+   up the component files here, so only the base reset was emitted and no
+   utility classes were generated. Paths are relative to this CSS file
+   (src/app/), so "../" covers all of src/. */
+@source "../**/*.{js,ts,jsx,tsx,mdx}";
+
+@theme {
+  --color-primary: #ea580c;
+  --color-primary-dark: #c2410c;
+  --color-secondary: #78716c;
+}

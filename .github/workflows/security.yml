@@ -1,0 +1,127 @@
+name: Security Scans
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    # Run weekly on Monday at 06:00 UTC to catch newly disclosed CVEs
+    - cron: "0 6 * * 1"
+
+jobs:
+  # ── 1. Gitleaks — scan git history for committed secrets ───────────────────
+  gitleaks:
+    name: Gitleaks secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # full history so gitleaks can scan all commits
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── 2. npm audit — known CVEs in dependencies ──────────────────────────────
+  npm-audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Audit backend
+        working-directory: backend
+        # --audit-level=high: fail only on high or critical severity
+        run: npm audit --audit-level=high
+      - name: Audit frontend
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
+  # ── 3. Semgrep — OWASP pattern matching ────────────────────────────────────
+  semgrep:
+    name: Semgrep SAST
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Semgrep
+        # p/owasp-top-ten covers the OWASP Top 10; p/nodejs adds Node-specific rules
+        run: semgrep --config p/owasp-top-ten --config p/nodejs --error --json > semgrep.json || true
+      - name: Fail on high severity findings
+        run: |
+          HIGH=$(python3 -c "
+          import json, sys
+          data = json.load(open('semgrep.json'))
+          highs = [r for r in data.get('results', []) if r.get('extra', {}).get('severity') in ('ERROR', 'WARNING')]
+          print(len(highs))
+          ")
+          echo "Semgrep findings at WARNING or above: $HIGH"
+          [ "$HIGH" -eq 0 ] || exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-results
+          path: semgrep.json
+
+  # ── 4. CodeQL — semantic vulnerability analysis ────────────────────────────
+  codeql:
+    name: CodeQL analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["javascript-typescript"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+      - uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  # ── 5. Trivy — Docker image CVE scan ──────────────────────────────────────
+  trivy:
+    name: Trivy image scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build backend image
+        run: docker build -t bazaarhub-backend:ci ./backend
+      - name: Build frontend image
+        run: docker build -t bazaarhub-frontend:ci ./frontend
+      - name: Scan backend image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: bazaarhub-backend:ci
+          format: sarif
+          output: trivy-backend.sarif
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+      - name: Scan frontend image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: bazaarhub-frontend:ci
+          format: sarif
+          output: trivy-frontend.sarif
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-backend.sarif
+          category: trivy-backend
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-frontend.sarif
+          category: trivy-frontend

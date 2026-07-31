@@ -1,0 +1,46 @@
+# ── Dependencies ──────────────────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ── Environment / Secrets ─────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+!frontend/src/app/admin/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Build Artifacts ───────────────────────────────────────────────────────────
+dist/
+build/
+.vite/
+.next/
+next-env.d.ts
+*.tsbuildinfo
+
+# ── Test / Coverage ───────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ── Uploaded Files ────────────────────────────────────────────────────────────
+# Never commit user-uploaded documents (e.g. seller verification files)
+uploads/
+
+# ── OS / Editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+# Local override files are not committed
+docker-compose.override.yml
