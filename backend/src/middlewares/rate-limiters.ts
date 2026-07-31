@@ -37,6 +37,12 @@ export const passwordChangeLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 
 // Email verification: token consume is cheap; resend sends mail, so keep it modest.
 export const emailVerifyLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, ...withSkip });
 export const emailVerifyResendLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, ...common });
+// Magic link: request sends mail (same abuse shape as password reset — email-
+// bombing/quota exhaustion, not brute-force, since the token is 256-bit), verify
+// is cheap but still bounded as defense-in-depth. Previously unlimited (see
+// auth.routes.ts) — the only two auth endpoints with no rate limiter at all.
+export const magicLinkRequestLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, ...withSkip });
+export const magicLinkVerifyLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, ...withSkip });
 
 // ── Admin ──
 export const adminActionLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, ...common });
