@@ -12,7 +12,7 @@ interface NotifyInput {
 
 // Fire-and-forget creation. Callers MUST NOT await this in a way that can fail
 // the triggering action — errors are swallowed and logged, same contract as
-// the transactional email helpers.
+
 export function notifyUser(userId: IdLike | null | undefined, input: NotifyInput): void {
   if (!userId) return;
   NotificationModel.create({
