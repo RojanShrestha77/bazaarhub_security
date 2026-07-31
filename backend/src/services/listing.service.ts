@@ -5,14 +5,12 @@ import { IUser } from "../models/user.model";
 import { SellerTier } from "../types/user.type";
 
 // Tier limits enforced HERE, not just at the route, so a future second call
-// site can't skip it. A client-side check is not a control.
 const LISTING_LIMIT_BY_TIER: Record<SellerTier, number> = {
   unverified: 3,
   verified: 20,
   trusted: Infinity,
 };
 
-// Explicit transition table — anything not listed is rejected. Sold and
 // withdrawn are terminal (a re-list is a new listing, not a status flip).
 const ALLOWED_TRANSITIONS: Record<ListingStatus, ListingStatus[]> = {
   draft: ["active", "withdrawn"],
