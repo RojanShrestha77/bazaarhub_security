@@ -84,9 +84,6 @@ export class AuthController {
         logEvent({ action: "register_attempt", outcome: "failure", ip: req.ip, userAgent: req.get("user-agent"), metadata: { reason: "email_exists" } }).catch(() => {});
       } else {
         try {
-          // Explicit allow-list, never a req.body spread — role/sellerTier
-          // are never client-settable. applyAsSeller only ever sets the
-          // application to "pending"; the role itself stays "buyer" until an
           // admin approves.
           const created = await UserModel.create({ email, passwordHash, sellerApplicationStatus: applyAsSeller ? "pending" : "none" });
           sendRegistrationConfirmation(email);
@@ -125,10 +122,6 @@ export class AuthController {
       const success = passwordValid && !backoffActive && !user?.deletedAt;
 
       if (!success) {
-        // NOT awaited — a DB save only happening for existing users would
-        // leak timing. Only extend backoff on an ACTUALLY wrong password,
-        // never on a correct one blocked by an active window (else a user
-        // retrying their correct password re-extends their own lockout).
         if (user && !passwordValid) {
           registerFailedAttempt(user).catch((err: Error) => {
             console.error("registerFailedAttempt failed:", err.message);
