@@ -14,7 +14,6 @@ export async function createEmailVerificationToken(userId: mongoose.Types.Object
   return rawToken;
 }
 
-// Single atomic findOneAndUpdate keyed on the deterministic SHA-256 hash;
 // re-checks expiry itself. Returns the consumed token doc (with userId) or null.
 export async function consumeEmailVerificationToken(rawToken: string): Promise<IEmailVerificationToken | null> {
   const tokenHash = hashSessionToken(rawToken);
