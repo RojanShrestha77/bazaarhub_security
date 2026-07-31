@@ -34,7 +34,6 @@ function startReservationSweep() {
 async function start() {
   try {
     await connectDB();
-    // Pre-warm the argon2id dummy hash so the first login doesn't pay the
     // one-off computation cost (decision #7 timing parity).
     await ensureDummyHash();
     const app = createApp();
