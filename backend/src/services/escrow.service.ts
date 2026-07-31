@@ -33,7 +33,11 @@ interface TransitionRule {
 }
 
 const TRANSITIONS: TransitionRule[] = [
-  { from: "created", to: "payment_held", whoCanTrigger: ["webhook"], guards: [] },
+  // "webhook" covers Stripe's async payment_intent.succeeded callback;
+  // "buyer" covers Khalti, which has no webhook here — the buyer's own
+  // browser calls /verify after being redirected back from Khalti's
+  // hosted checkout, so that transition is genuinely buyer-triggered.
+  { from: "created", to: "payment_held", whoCanTrigger: ["webhook", "buyer"], guards: [] },
   { from: "payment_held", to: "shipped", whoCanTrigger: ["seller"], guards: [] },
   { from: "payment_held", to: "disputed", whoCanTrigger: ["buyer"], guards: ["dispute_window_open"] },
   { from: "shipped", to: "delivered", whoCanTrigger: ["buyer"], guards: [] },
