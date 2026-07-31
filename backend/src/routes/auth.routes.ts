@@ -10,6 +10,8 @@ import {
   passwordChangeLimiter,
   emailVerifyLimiter,
   emailVerifyResendLimiter,
+  magicLinkRequestLimiter,
+  magicLinkVerifyLimiter,
 } from "../middlewares/rate-limiters";
 import { validateBody } from "../middlewares/validate";
 import { requireCaptcha } from "../middlewares/captcha";
@@ -75,11 +77,9 @@ router.post("/password/reset/confirm", PUBLIC, passwordResetLimiter, validateBod
 router.post("/email/verify", PUBLIC, emailVerifyLimiter, validateBody(emailVerifySchema), auth.verifyEmail);
 router.post("/email/verify/resend", [requireSession], requireCsrfToken, emailVerifyResendLimiter, auth.resendEmailVerification);
 
-// Magic link (passwordless). NOTE: the original JS routes had no rate
-// limiter here; kept identical for now. Adding magicLinkLimiter is a
-// candidate hardening step to propose separately (finding-then-fix), not a
-// silent behaviour change during the port.
-router.post("/magic-link/request", PUBLIC, requireCaptcha, validateBody(magicLinkRequestSchema), auth.magicLinkRequest);
-router.post("/magic-link/verify", PUBLIC, validateBody(magicLinkVerifySchema), auth.magicLinkVerify);
+// Magic link (passwordless) — rate-limited same as every other mail-sending
+// auth endpoint (was previously the only two auth routes with no limiter).
+router.post("/magic-link/request", PUBLIC, magicLinkRequestLimiter, requireCaptcha, validateBody(magicLinkRequestSchema), auth.magicLinkRequest);
+router.post("/magic-link/verify", PUBLIC, magicLinkVerifyLimiter, validateBody(magicLinkVerifySchema), auth.magicLinkVerify);
 
 export default router;
