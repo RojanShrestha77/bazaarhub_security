@@ -7,6 +7,7 @@ import path from "node:path";
 import fs from "node:fs/promises";
 import crypto from "node:crypto";
 import multer from "multer";
+import sharp, { FormatEnum } from "sharp";
 import { fromBuffer as fileTypeFromBuffer } from "file-type";
 import { Request, Response, NextFunction } from "express";
 
@@ -52,7 +53,8 @@ export async function validateAndStoreAvatar(req: Request, res: Response, next: 
     await fs.mkdir(UPLOAD_DIR, { recursive: true });
 
     // Filename entirely server-generated: owner id + random UUID + sniffed ext.
-    const filename = `${req.user!._id}-${crypto.randomUUID()}.${EXT_BY_MIME[mime]}`;
+    const ext = EXT_BY_MIME[mime];
+    const filename = `${req.user!._id}-${crypto.randomUUID()}.${ext}`;
     const destPath = path.join(UPLOAD_DIR, filename);
 
     // Defense in depth: can't traverse by construction, re-verify anyway.
@@ -60,7 +62,16 @@ export async function validateAndStoreAvatar(req: Request, res: Response, next: 
       return res.status(400).json({ error: "Invalid upload target" });
     }
 
-    await fs.writeFile(destPath, req.file.buffer);
+    // rotate() auto-orients from EXIF before it's stripped; resize caps
+    // dimensions (decompression-bomb defense); no metadata is retained —
+    // same treatment listing images get, closing the GPS-leak gap avatars had.
+    const reencoded = await sharp(req.file.buffer)
+      .rotate()
+      .resize({ width: 512, height: 512, fit: "inside", withoutEnlargement: true })
+      .toFormat((ext === "jpg" ? "jpeg" : ext) as keyof FormatEnum)
+      .toBuffer();
+
+    await fs.writeFile(destPath, reencoded);
 
     req.avatarFilename = filename;
     req.avatarMime = mime;

@@ -32,6 +32,12 @@ export class MessageNotFoundError extends Error {
     this.name = "MessageNotFoundError";
   }
 }
+export class CannotReportOwnMessageError extends Error {
+  constructor() {
+    super("You cannot report your own message");
+    this.name = "CannotReportOwnMessageError";
+  }
+}
 
 // Buyer starts (or re-opens) a thread with the seller of a listing. The buyer
 // is the initiator; the seller is resolved server-side from the listing, never

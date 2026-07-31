@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, useRef, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { User, Save, Download, Shield, Mail, BadgeCheck, Store, MapPin, ChevronRight, MailWarning, AlertTriangle } from "lucide-react";
-import { api, ApiError } from "@/lib/api";
+import { User, Save, Download, Shield, Mail, BadgeCheck, Store, MapPin, ChevronRight, MailWarning, AlertTriangle, Camera } from "lucide-react";
+import { api, API_BASE, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import type { UserProfile } from "@/types";
 import toast from "react-hot-toast";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
@@ -21,11 +21,34 @@ export default function ProfilePage() {
   const [showDelete, setShowDelete] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarVersion, setAvatarVersion] = useState(0);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) { router.push("/login"); return; }
     api.get<UserProfile>("/profiles/me").then((p) => { setProfile(p); setName(p.displayName || ""); }).catch(() => {});
-  }, [user, router]);
+  }, [user, authLoading, router]);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file later
+    if (!file) return;
+    setUploadingAvatar(true);
+    try {
+      const form = new FormData();
+      form.append("avatar", file);
+      const updated = await api.upload<UserProfile>("/profiles/me/avatar", form);
+      setProfile(updated);
+      setAvatarVersion((v) => v + 1); // cache-bust the <img> src so the new image actually shows
+      toast.success("Profile picture updated");
+    } catch (err: unknown) {
+      toast.error(err instanceof ApiError ? err.message : "Failed to upload profile picture");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSave = async (e: FormEvent) => {
     e.preventDefault();
@@ -117,8 +140,35 @@ export default function ProfilePage() {
         {/* Profile header */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm mb-6">
           <div className="flex items-center gap-5">
-            <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <User className="w-10 h-10 text-orange-600" />
+            <div className="relative w-20 h-20 flex-shrink-0 group">
+              <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center overflow-hidden">
+                {profile.hasAvatar ? (
+                  <img
+                    src={`${API_BASE}/profiles/me/avatar?v=${avatarVersion}`}
+                    crossOrigin="use-credentials"
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-10 h-10 text-orange-600" />
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                aria-label="Change profile picture"
+                className="absolute inset-0 w-full h-full rounded-full bg-black/0 group-hover:bg-black/40 flex items-center justify-center transition-colors disabled:cursor-wait"
+              >
+                <Camera className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold text-gray-900 truncate">{profile.displayName || "User"}</h1>

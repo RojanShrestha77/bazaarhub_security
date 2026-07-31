@@ -9,11 +9,12 @@ import { createUser, createSession } from "../helpers/fixtures";
 
 const app = createApp();
 
-// Minimal well-formed 1x1 PNG (real magic bytes) — file-type sniffs this
-// correctly as image/png regardless of what Content-Type/filename a
-// request claims.
+// Well-formed 1x1 PNG (real magic bytes AND a fully valid, decodable pixel
+// stream) — file-type sniffs this as image/png, and it also survives the
+// sharp() re-encode avatar upload now performs, unlike a hand-crafted
+// fixture that's only valid enough for magic-byte sniffing.
 const REAL_PNG = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWP4z8AAAAMBAQCc479ZAAAAAElFTkSuQmCC",
   "base64",
 );
 
