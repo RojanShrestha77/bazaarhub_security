@@ -257,7 +257,6 @@ export async function checkout(
   }
 
   // ── Khalti: create order, initiate payment, return the redirect URL. The
-  // order moves to payment_held only after confirmKhaltiPayment verifies it. ──
   if (paymentMethod === "khalti") {
     const order = await OrderModel.create({ ...base, paymentMethod: "khalti", status: "created" });
     let init;
