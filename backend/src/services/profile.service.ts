@@ -2,9 +2,6 @@ import { Types } from "mongoose";
 import { ProfileModel, IProfile } from "../models/profile.model";
 import { IUser } from "../models/user.model";
 
-// Explicit field list even though req.validatedBody is already strict-
-// schema-limited — never spread a request-derived object into a Mongoose
-// write, even a validated one.
 const ALLOWED_FIELDS = ["displayName", "bio", "location"] as const;
 
 export async function getOrCreateProfile(userId: Types.ObjectId): Promise<IProfile> {
