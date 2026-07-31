@@ -1,22 +1,13 @@
 import { z } from "zod";
 import { PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH } from "../configs/security";
 
-// Password policy (ASVS V2.1): length over composition, no forced rotation.
-// No composition rules — ASVS recommends against them (they push users
-// toward predictable patterns more than they add entropy). Max is a
-// DoS/consistency guard.
+
 const password = z.string().min(PASSWORD_MIN_LENGTH).max(PASSWORD_MAX_LENGTH);
 const email = z.string().trim().toLowerCase().email().max(254);
 const captchaField = z.string().optional();
 
-// applyAsSeller only expresses INTENT to request seller status — it can
-// never grant a role. The controller maps true → sellerApplicationStatus
-// "pending"; role always starts "buyer".
 export const registerSchema = z.object({ email, password, captchaToken: captchaField, applyAsSeller: z.boolean().optional() });
 
-// Deliberately NOT validating "does this user exist" — that's the
-// enumeration-sensitive path (decision #7) handled in the route's
-// timing-matched logic.
 export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
   password: z.string().min(1).max(128),
