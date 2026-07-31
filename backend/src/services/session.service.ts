@@ -11,7 +11,6 @@ interface CreateSessionArgs {
 }
 
 // Decision #1 + session-fixation defense: ALWAYS issue a brand-new session
-// document and token — never reuse or upgrade a pre-existing session id
 // across an authentication boundary.
 export async function createSession({
   userId,
