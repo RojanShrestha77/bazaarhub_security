@@ -47,7 +47,6 @@ export async function changeUserRole(actorId: IdLike, subjectId: IdLike, newRole
   await subject.save();
 
   // Stale privileges must not survive a role change — any session issued
-  // under the old role stops working on its next request.
   await revokeAllSessionsForUser(subjectId as Types.ObjectId);
 
   await recordChange({ actorId, subjectId, action: "role_change", before, after: newRole });
