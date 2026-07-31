@@ -1,8 +1,7 @@
 import { z } from "zod";
 
 // Exactly the user-settable fields on Profile — kept in sync deliberately.
-// .strict() rejects unknown keys (role, sellerTier, mfaEnabled bounce as
-// 400) — defense in depth on top of those fields not existing on Profile.
+
 export const profileUpdateSchema = z
   .object({
     displayName: z.string().trim().max(60).optional(),
