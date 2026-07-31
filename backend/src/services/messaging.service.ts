@@ -89,6 +89,7 @@ export async function reportMessage(conversationId: IdLike, messageId: IdLike, u
   const convo = await requireParticipantConversation(conversationId, userId);
   const message = await MessageModel.findOne({ _id: messageId, conversationId: convo._id });
   if (!message) throw new MessageNotFoundError();
+  if (String(message.senderId) === String(userId)) throw new CannotReportOwnMessageError();
   if (!message.reportedAt) {
     message.reportedAt = new Date();
     await message.save();
