@@ -3,7 +3,6 @@ import { transporter, MAIL_FROM } from "../lib/mailer";
 import { ALERT_EMAIL } from "../configs/captcha";
 
 // Real-time detection + alerting (rubric 2.5.4). Runs off each audit entry;
-// failures here must NEVER break the main request flow.
 export async function sendAlert(subject: string, text: string): Promise<void> {
   transporter.sendMail({ from: MAIL_FROM, to: ALERT_EMAIL, subject, text }).catch(() => {});
 }
