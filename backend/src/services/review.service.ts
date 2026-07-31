@@ -7,7 +7,6 @@ import { notifyUser } from "./notification.service";
 type IdLike = Types.ObjectId | string;
 
 // A buyer earns the right to review only once they have actually received the
-// item — an order for this listing that reached delivered or released.
 const QUALIFYING_ORDER_STATUSES = ["delivered", "released"];
 
 export class ListingNotFoundError extends Error {
