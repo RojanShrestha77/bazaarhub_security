@@ -10,7 +10,6 @@ export class AddressNotFoundError extends Error {
   }
 }
 
-// Explicit field allow-list — never spread client input into a Mongoose write,
 // even after schema validation. userId and isDefault are set by the service.
 const WRITABLE_FIELDS = [
   "label",
