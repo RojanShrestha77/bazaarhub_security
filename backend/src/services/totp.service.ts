@@ -5,8 +5,7 @@ import { TOTP_KEY_VERSION, totpEncryptionKey } from "../configs";
 import { TotpSecret } from "../types/user.type";
 
 // Set ONCE at module load. Using the library's own checkDelta() for the
-// window search rather than mutating the shared singleton's epoch per call
-// (which was a live concurrency hazard between concurrent requests).
+
 authenticator.options = { step: TOTP_STEP_SECONDS, window: TOTP_WINDOW_STEPS };
 
 export function generateTotpSecret(): string {
