@@ -249,9 +249,6 @@ export async function checkout(
     holdDurationMs,
   };
 
-  // ── Cash on Delivery: no online payment. Confirmed immediately; the buyer
-  // pays cash when the order is delivered. Goes straight to payment_held so
-  // the seller can ship. ──
   if (paymentMethod === "cod") {
     const order = await OrderModel.create({ ...base, paymentMethod: "cod", status: "payment_held" });
     await EscrowEventModel.create({ orderId: order._id, fromStatus: null, toStatus: "payment_held", triggeredBy: buyerId, triggerType: "buyer", reason: "COD order placed — pay on delivery" });
