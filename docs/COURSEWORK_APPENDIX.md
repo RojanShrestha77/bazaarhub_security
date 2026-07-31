@@ -25,8 +25,8 @@ authorization primitives enforced by the authz router.
 | POST | /api/auth/password/reset/confirm | PUBLIC + rate-limit | Confirm reset via token |
 | POST | /api/auth/email/verify | PUBLIC + rate-limit | Verify email via token |
 | POST | /api/auth/email/verify/resend | session + CSRF + rate-limit | Resend verification email |
-| POST | /api/auth/magic-link/request | PUBLIC + captcha | Request passwordless link |
-| POST | /api/auth/magic-link/verify | PUBLIC | Sign in via magic link |
+| POST | /api/auth/magic-link/request | PUBLIC + captcha + rate-limit | Request passwordless link |
+| POST | /api/auth/magic-link/verify | PUBLIC + rate-limit | Sign in via magic link |
 | GET | /api/profiles/me | session | Own profile |
 | PATCH | /api/profiles/me | session + CSRF | Update own profile (field allow-list) |
 | POST | /api/profiles/me/avatar | session + CSRF + upload | Upload avatar (secure) |
