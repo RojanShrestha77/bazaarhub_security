@@ -13,9 +13,7 @@ export class SellerApplicationError extends Error {
 }
 
 // Self-service seller request by a logged-in user. Only a buyer whose
-// application is not already open may apply — this can ONLY move the status to
-// "pending", never grant the seller role (that is admin-only, see
-// admin.service.approveSellerApplication). A rejected applicant may re-apply.
+
 export async function applyForSeller(userId: Types.ObjectId): Promise<IUser> {
   const user = await UserModel.findById(userId);
   if (!user) {
