@@ -36,7 +36,6 @@ export default function AddressesPage() {
     try {
       const payload = Object.fromEntries(Object.entries(form).filter(([, v]) => v.trim() !== ""));
       const created = await api.post<Address>("/addresses", { ...payload, isDefault: makeDefault });
-      // Re-fetch so the default flag is consistent across the list.
       const { addresses: fresh } = await api.get<{ addresses: Address[] }>("/addresses");
       setAddresses(fresh);
       void created;
