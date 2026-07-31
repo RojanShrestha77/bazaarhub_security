@@ -9,6 +9,7 @@ import {
   CannotMessageSelfError,
   ConversationNotFoundError,
   MessageNotFoundError,
+  CannotReportOwnMessageError,
 } from "../services/messaging.service";
 import { logEvent } from "../services/audit.service";
 import { ConversationStartDto, MessageSendDto } from "../validators/messaging.schema";
@@ -33,6 +34,7 @@ export class MessagingController {
     if (err instanceof ConversationNotFoundError) return res.status(404).json({ error: err.message });
     if (err instanceof MessageNotFoundError) return res.status(404).json({ error: err.message });
     if (err instanceof CannotMessageSelfError) return res.status(400).json({ error: err.message });
+    if (err instanceof CannotReportOwnMessageError) return res.status(400).json({ error: err.message });
     next(err);
   }
 
