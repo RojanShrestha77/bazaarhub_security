@@ -12,18 +12,6 @@ export async function verifyPassword(hash: string, plaintext: string): Promise<b
   return argon2.verify(hash, plaintext);
 }
 
-// Decision #7: the timing gap between "hash a real stored value" and "skip
-// hashing because the user doesn't exist" is the sneaky enumeration leak.
-// A real argon2id verify against a fixed dummy hash runs on the
-// non-existent-user path so both branches contend for the same worker-
-// thread pool the same way under concurrent load.
-//
-// PORT NOTE: the original ESM module computed DUMMY_HASH with a top-level
-// `await` at import time. CommonJS/TS forbids top-level await, so it's
-// lazily memoized here instead — computed once on first use and cached.
-// Same guarantee (one hash, reused), no top-level await. Callers may
-// pre-warm it at startup via ensureDummyHash() so the first real login
-// doesn't pay the one-off computation cost.
 const DUMMY_PASSWORD_PLAINTEXT = "dummy-password-never-compared-to-anything-real";
 let dummyHashPromise: Promise<string> | null = null;
 
