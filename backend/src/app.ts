@@ -59,11 +59,6 @@ export function createApp() {
           objectSrc: ["'none'"],
         },
       },
-      // The frontend is a separate origin (Next.js on :3000) that legitimately
-      // loads images and other assets from this API. Helmet's default CORP of
-      // "same-origin" blocks those cross-origin <img> loads, so relax it to
-      // "cross-origin" — the API is meant to be consumed from the frontend
-      // origin. Access control still comes from CORS + the route authz.
       crossOriginResourcePolicy: { policy: "cross-origin" },
     }),
   );
