@@ -1,8 +1,5 @@
 import Stripe from "stripe";
 
-// Lazy singleton so importing this module doesn't require STRIPE_SECRET_KEY
-// at boot (only payment operations do). Tests inject a mock via
-// _setStripeInstance.
 let _stripe: Stripe | null = null;
 
 function getStripe(): Stripe {
