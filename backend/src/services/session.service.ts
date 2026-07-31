@@ -10,7 +10,6 @@ interface CreateSessionArgs {
   userAgent?: string;
 }
 
-// Decision #1 + session-fixation defense: ALWAYS issue a brand-new session
 // across an authentication boundary.
 export async function createSession({
   userId,
