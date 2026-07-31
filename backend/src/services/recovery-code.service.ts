@@ -11,7 +11,6 @@ function formatCode(): string {
 }
 
 // Decision #5: regeneration invalidates the WHOLE old set. Returns the
-// plaintext codes so the caller can show them once; only argon2id hashes
 // are persisted.
 export async function generateRecoveryCodes(userId: mongoose.Types.ObjectId): Promise<string[]> {
   await RecoveryCodeModel.deleteMany({ userId });
