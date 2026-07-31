@@ -5,7 +5,7 @@ export const rejectVerificationSchema = z.object({
   reason: z.string().min(1, "Rejection reason is required").max(500, "Rejection reason too long"),
 });
 
-// Seller KYC details (replaces document upload for this build).
+// Seller KYC  (replaces document upload for this build).
 export const verificationSubmitSchema = z
   .object({
     fullName: z.string().trim().min(1, "Full name is required").max(120),
