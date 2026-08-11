@@ -35,7 +35,6 @@ import { AuthController } from "../controllers/auth.controller";
 const router = createAuthzRouter();
 const auth = new AuthController();
 
-// Registration & login: PUBLIC + rate limit + captcha + validation.
 // Decision #7 (identical response on existence) lives in the controller.
 router.post("/register", PUBLIC, registerLimiter, requireCaptcha, validateBody(registerSchema), auth.register);
 router.post("/login", PUBLIC, loginLimiter, requireCaptcha, validateBody(loginSchema), auth.login);
