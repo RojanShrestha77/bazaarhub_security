@@ -14,7 +14,6 @@ export const resolveDisputeSchema = z.object({
   resolution: z.enum(["refunded", "released"]),
 });
 
-// Shipping details supplied when a seller ships (or later updates tracking).
 // Both fields optional — a seller may ship without a tracking number.
 export const shipSchema = z
   .object({
