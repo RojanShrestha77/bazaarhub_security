@@ -15,8 +15,7 @@ const HTTPS_ENABLED = process.env.HTTPS_ENABLED === "true";
 const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH || "certs/key.pem";
 const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH || "certs/cert.pem";
 
-// Periodically return stock held by abandoned (unpaid) checkouts. Runs in-
-// process; a multi-replica deployment should move this to a single scheduled
+
 // worker (or a Mongo TTL-driven job) so the sweep doesn't run N times over.
 const RESERVATION_SWEEP_INTERVAL_MS = 5 * 60 * 1000;
 
