@@ -71,7 +71,6 @@ router.post("/password/reset/request", PUBLIC, passwordResetLimiter, validateBod
 router.post("/password/reset/confirm", PUBLIC, passwordResetLimiter, validateBody(passwordResetConfirmSchema), auth.passwordResetConfirm);
 
 // Email verification. Consume is PUBLIC (token is the credential); resend
-// requires a session (acts only on the caller's own account).
 router.post("/email/verify", PUBLIC, emailVerifyLimiter, validateBody(emailVerifySchema), auth.verifyEmail);
 router.post("/email/verify/resend", [requireSession], requireCsrfToken, emailVerifyResendLimiter, auth.resendEmailVerification);
 
