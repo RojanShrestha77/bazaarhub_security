@@ -7,7 +7,6 @@ import { AuthzGate } from "../lib/authzRouter";
 // (buyer/seller/admin) and sellerTier (unverified -> verified -> trusted,
 // sellers only). Both are read fresh from req.user every request, so an
 // admin changing either takes effect on the subject's next request. Every
-// gate is tagged __isAuthzGate so authzRouter can enforce, at registration
 type CheckFn = (req: Request, res: Response, next: NextFunction) => unknown;
 
 function gate(name: string, checkFn: CheckFn): AuthzGate {
