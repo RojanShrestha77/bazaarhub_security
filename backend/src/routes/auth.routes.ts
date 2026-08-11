@@ -56,7 +56,6 @@ router.post(
   auth.recoveryCodeVerify,
 );
 
-// Password change requires an MFA-verified session (not just requireSession)
 // so a stolen pre-MFA session can't change the password.
 router.post(
   "/password/change",
