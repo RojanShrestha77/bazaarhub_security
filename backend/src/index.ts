@@ -7,8 +7,6 @@ import { expireStaleReservations } from "./services/escrow.service";
 import { PORT } from "./configs";
 import { logger } from "./lib/logger";
 
-// Opt-in TLS. When HTTPS_ENABLED=true and a key/cert are present, the API is
-// served over HTTPS so cookies (Secure / __Host-) and HSTS are exercised over a
 // real encrypted channel. Otherwise it serves plain HTTP (Docker/dev default,
 // and behind a TLS-terminating reverse proxy in production).
 const HTTPS_ENABLED = process.env.HTTPS_ENABLED === "true";
