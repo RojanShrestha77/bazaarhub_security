@@ -74,7 +74,6 @@ router.post("/password/reset/confirm", PUBLIC, passwordResetLimiter, validateBod
 router.post("/email/verify", PUBLIC, emailVerifyLimiter, validateBody(emailVerifySchema), auth.verifyEmail);
 router.post("/email/verify/resend", [requireSession], requireCsrfToken, emailVerifyResendLimiter, auth.resendEmailVerification);
 
-// Magic link (passwordless) — rate-limited same as every other mail-sending
 // auth endpoint (was previously the only two auth routes with no limiter).
 router.post("/magic-link/request", PUBLIC, magicLinkRequestLimiter, requireCaptcha, validateBody(magicLinkRequestSchema), auth.magicLinkRequest);
 router.post("/magic-link/verify", PUBLIC, magicLinkVerifyLimiter, validateBody(magicLinkVerifySchema), auth.magicLinkVerify);
