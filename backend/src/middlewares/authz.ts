@@ -24,8 +24,6 @@ function gate(name: string, checkFn: CheckFn): AuthzGate {
 }
 
 // Explicitly-public route marker — the required declaration for any route
-// intentionally without an authorization requirement. Loads the session
-// (harmless) but never rejects.
 export const PUBLIC: AuthzGate = gate("public", (_req, _res, next) => next());
 
 export const requireSession: AuthzGate = gate("requireSession", _requireSession);
